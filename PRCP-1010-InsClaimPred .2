@@ -1,0 +1,2160 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "cdcb3256-db52-4594-bf9f-6b0c90c84e12",
+   "metadata": {},
+   "source": [
+    "## Business Case\n",
+    "\n",
+    "Insurance companies face significant challenges in accurately predicting insurance claim payments due to the diverse nature of risk factors associated with each customer. Traditional models often fall short in capturing the nuances of individual risk profiles, leading to inefficiencies in claims processing and financial forecasting. This project aims to enhance the prediction of insurance claim payments by leveraging advanced data analytics and machine learning techniques to better understand and predict risk factors. By developing a more accurate prediction model, we will improve our ability to forecast claim payments, optimize resource allocation, and ultimately enhance profitability and customer satisfaction."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e5ce4294-6d87-4391-8945-747036443fc8",
+   "metadata": {},
+   "source": [
+    "### Import Basic Libraries. \n",
+    "\n",
+    "- To start our analysis and model development for predicting flight ticket prices, we need to import several fundamental libraries. These libraries will help us with data manipulation, visualization, and machine learning tasks."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "a509c7fc-d700-4151-b8ce-85ba90440f30",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import seaborn as sns\n",
+    "import pandas as pd\n",
+    "import matplotlib.pyplot as plt\n",
+    "import warnings\n",
+    "warnings.filterwarnings(\"ignore\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6dc21c5a-dd24-4902-b32b-7641ddfe957f",
+   "metadata": {},
+   "source": [
+    "### Loading the data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "9725954f-e7e3-410c-a147-98592ee4b990",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>id</th>\n",
+       "      <th>target</th>\n",
+       "      <th>ps_ind_01</th>\n",
+       "      <th>ps_ind_02_cat</th>\n",
+       "      <th>ps_ind_03</th>\n",
+       "      <th>ps_ind_04_cat</th>\n",
+       "      <th>ps_ind_05_cat</th>\n",
+       "      <th>ps_ind_06_bin</th>\n",
+       "      <th>ps_ind_07_bin</th>\n",
+       "      <th>ps_ind_08_bin</th>\n",
+       "      <th>...</th>\n",
+       "      <th>ps_calc_11</th>\n",
+       "      <th>ps_calc_12</th>\n",
+       "      <th>ps_calc_13</th>\n",
+       "      <th>ps_calc_14</th>\n",
+       "      <th>ps_calc_15_bin</th>\n",
+       "      <th>ps_calc_16_bin</th>\n",
+       "      <th>ps_calc_17_bin</th>\n",
+       "      <th>ps_calc_18_bin</th>\n",
+       "      <th>ps_calc_19_bin</th>\n",
+       "      <th>ps_calc_20_bin</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>7</td>\n",
+       "      <td>0</td>\n",
+       "      <td>2</td>\n",
+       "      <td>2</td>\n",
+       "      <td>5</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>9</td>\n",
+       "      <td>1</td>\n",
+       "      <td>5</td>\n",
+       "      <td>8</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>9</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>7</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>...</td>\n",
+       "      <td>3</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>9</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>13</td>\n",
+       "      <td>0</td>\n",
+       "      <td>5</td>\n",
+       "      <td>4</td>\n",
+       "      <td>9</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>...</td>\n",
+       "      <td>4</td>\n",
+       "      <td>2</td>\n",
+       "      <td>7</td>\n",
+       "      <td>7</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>16</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>2</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>2</td>\n",
+       "      <td>2</td>\n",
+       "      <td>4</td>\n",
+       "      <td>9</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>17</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>2</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>3</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>3</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>595207</th>\n",
+       "      <td>1488013</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3</td>\n",
+       "      <td>1</td>\n",
+       "      <td>10</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>4</td>\n",
+       "      <td>1</td>\n",
+       "      <td>9</td>\n",
+       "      <td>6</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>595208</th>\n",
+       "      <td>1488016</td>\n",
+       "      <td>0</td>\n",
+       "      <td>5</td>\n",
+       "      <td>1</td>\n",
+       "      <td>3</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>4</td>\n",
+       "      <td>1</td>\n",
+       "      <td>3</td>\n",
+       "      <td>8</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>595209</th>\n",
+       "      <td>1488017</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>10</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>3</td>\n",
+       "      <td>2</td>\n",
+       "      <td>2</td>\n",
+       "      <td>6</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>595210</th>\n",
+       "      <td>1488021</td>\n",
+       "      <td>0</td>\n",
+       "      <td>5</td>\n",
+       "      <td>2</td>\n",
+       "      <td>3</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>...</td>\n",
+       "      <td>4</td>\n",
+       "      <td>1</td>\n",
+       "      <td>4</td>\n",
+       "      <td>2</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>595211</th>\n",
+       "      <td>1488027</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>8</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>4</td>\n",
+       "      <td>4</td>\n",
+       "      <td>3</td>\n",
+       "      <td>8</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>595212 rows × 59 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "             id  target  ps_ind_01  ps_ind_02_cat  ps_ind_03  ps_ind_04_cat  \\\n",
+       "0             7       0          2              2          5              1   \n",
+       "1             9       0          1              1          7              0   \n",
+       "2            13       0          5              4          9              1   \n",
+       "3            16       0          0              1          2              0   \n",
+       "4            17       0          0              2          0              1   \n",
+       "...         ...     ...        ...            ...        ...            ...   \n",
+       "595207  1488013       0          3              1         10              0   \n",
+       "595208  1488016       0          5              1          3              0   \n",
+       "595209  1488017       0          1              1         10              0   \n",
+       "595210  1488021       0          5              2          3              1   \n",
+       "595211  1488027       0          0              1          8              0   \n",
+       "\n",
+       "        ps_ind_05_cat  ps_ind_06_bin  ps_ind_07_bin  ps_ind_08_bin  ...  \\\n",
+       "0                   0              0              1              0  ...   \n",
+       "1                   0              0              0              1  ...   \n",
+       "2                   0              0              0              1  ...   \n",
+       "3                   0              1              0              0  ...   \n",
+       "4                   0              1              0              0  ...   \n",
+       "...               ...            ...            ...            ...  ...   \n",
+       "595207              0              0              0              0  ...   \n",
+       "595208              0              0              0              0  ...   \n",
+       "595209              0              1              0              0  ...   \n",
+       "595210              0              0              0              1  ...   \n",
+       "595211              0              1              0              0  ...   \n",
+       "\n",
+       "        ps_calc_11  ps_calc_12  ps_calc_13  ps_calc_14  ps_calc_15_bin  \\\n",
+       "0                9           1           5           8               0   \n",
+       "1                3           1           1           9               0   \n",
+       "2                4           2           7           7               0   \n",
+       "3                2           2           4           9               0   \n",
+       "4                3           1           1           3               0   \n",
+       "...            ...         ...         ...         ...             ...   \n",
+       "595207           4           1           9           6               0   \n",
+       "595208           4           1           3           8               1   \n",
+       "595209           3           2           2           6               0   \n",
+       "595210           4           1           4           2               0   \n",
+       "595211           4           4           3           8               0   \n",
+       "\n",
+       "        ps_calc_16_bin  ps_calc_17_bin  ps_calc_18_bin  ps_calc_19_bin  \\\n",
+       "0                    1               1               0               0   \n",
+       "1                    1               1               0               1   \n",
+       "2                    1               1               0               1   \n",
+       "3                    0               0               0               0   \n",
+       "4                    0               0               1               1   \n",
+       "...                ...             ...             ...             ...   \n",
+       "595207               1               1               0               1   \n",
+       "595208               0               1               0               1   \n",
+       "595209               0               1               0               0   \n",
+       "595210               1               1               1               0   \n",
+       "595211               1               0               0               0   \n",
+       "\n",
+       "        ps_calc_20_bin  \n",
+       "0                    1  \n",
+       "1                    0  \n",
+       "2                    0  \n",
+       "3                    0  \n",
+       "4                    0  \n",
+       "...                ...  \n",
+       "595207               1  \n",
+       "595208               1  \n",
+       "595209               0  \n",
+       "595210               0  \n",
+       "595211               0  \n",
+       "\n",
+       "[595212 rows x 59 columns]"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data=pd.read_csv('insurance claim.csv')\n",
+    "data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d0f8c37a-69b1-4556-8cdb-93ab6cbd0f9f",
+   "metadata": {},
+   "source": [
+    "## Basic Checks"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "e39419e9-e1a9-4314-9678-fd5fb3e8a9e5",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(595212, 59)"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "2450bfae-7b15-484a-b72f-d9105c66b719",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<bound method DataFrame.info of              id  target  ps_ind_01  ps_ind_02_cat  ps_ind_03  ps_ind_04_cat  \\\n",
+       "0             7       0          2              2          5              1   \n",
+       "1             9       0          1              1          7              0   \n",
+       "2            13       0          5              4          9              1   \n",
+       "3            16       0          0              1          2              0   \n",
+       "4            17       0          0              2          0              1   \n",
+       "...         ...     ...        ...            ...        ...            ...   \n",
+       "595207  1488013       0          3              1         10              0   \n",
+       "595208  1488016       0          5              1          3              0   \n",
+       "595209  1488017       0          1              1         10              0   \n",
+       "595210  1488021       0          5              2          3              1   \n",
+       "595211  1488027       0          0              1          8              0   \n",
+       "\n",
+       "        ps_ind_05_cat  ps_ind_06_bin  ps_ind_07_bin  ps_ind_08_bin  ...  \\\n",
+       "0                   0              0              1              0  ...   \n",
+       "1                   0              0              0              1  ...   \n",
+       "2                   0              0              0              1  ...   \n",
+       "3                   0              1              0              0  ...   \n",
+       "4                   0              1              0              0  ...   \n",
+       "...               ...            ...            ...            ...  ...   \n",
+       "595207              0              0              0              0  ...   \n",
+       "595208              0              0              0              0  ...   \n",
+       "595209              0              1              0              0  ...   \n",
+       "595210              0              0              0              1  ...   \n",
+       "595211              0              1              0              0  ...   \n",
+       "\n",
+       "        ps_calc_11  ps_calc_12  ps_calc_13  ps_calc_14  ps_calc_15_bin  \\\n",
+       "0                9           1           5           8               0   \n",
+       "1                3           1           1           9               0   \n",
+       "2                4           2           7           7               0   \n",
+       "3                2           2           4           9               0   \n",
+       "4                3           1           1           3               0   \n",
+       "...            ...         ...         ...         ...             ...   \n",
+       "595207           4           1           9           6               0   \n",
+       "595208           4           1           3           8               1   \n",
+       "595209           3           2           2           6               0   \n",
+       "595210           4           1           4           2               0   \n",
+       "595211           4           4           3           8               0   \n",
+       "\n",
+       "        ps_calc_16_bin  ps_calc_17_bin  ps_calc_18_bin  ps_calc_19_bin  \\\n",
+       "0                    1               1               0               0   \n",
+       "1                    1               1               0               1   \n",
+       "2                    1               1               0               1   \n",
+       "3                    0               0               0               0   \n",
+       "4                    0               0               1               1   \n",
+       "...                ...             ...             ...             ...   \n",
+       "595207               1               1               0               1   \n",
+       "595208               0               1               0               1   \n",
+       "595209               0               1               0               0   \n",
+       "595210               1               1               1               0   \n",
+       "595211               1               0               0               0   \n",
+       "\n",
+       "        ps_calc_20_bin  \n",
+       "0                    1  \n",
+       "1                    0  \n",
+       "2                    0  \n",
+       "3                    0  \n",
+       "4                    0  \n",
+       "...                ...  \n",
+       "595207               1  \n",
+       "595208               1  \n",
+       "595209               0  \n",
+       "595210               0  \n",
+       "595211               0  \n",
+       "\n",
+       "[595212 rows x 59 columns]>"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data.info"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "47ab22a1-9573-475f-a0a1-197a9b89d8a2",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>id</th>\n",
+       "      <th>target</th>\n",
+       "      <th>ps_ind_01</th>\n",
+       "      <th>ps_ind_02_cat</th>\n",
+       "      <th>ps_ind_03</th>\n",
+       "      <th>ps_ind_04_cat</th>\n",
+       "      <th>ps_ind_05_cat</th>\n",
+       "      <th>ps_ind_06_bin</th>\n",
+       "      <th>ps_ind_07_bin</th>\n",
+       "      <th>ps_ind_08_bin</th>\n",
+       "      <th>...</th>\n",
+       "      <th>ps_calc_11</th>\n",
+       "      <th>ps_calc_12</th>\n",
+       "      <th>ps_calc_13</th>\n",
+       "      <th>ps_calc_14</th>\n",
+       "      <th>ps_calc_15_bin</th>\n",
+       "      <th>ps_calc_16_bin</th>\n",
+       "      <th>ps_calc_17_bin</th>\n",
+       "      <th>ps_calc_18_bin</th>\n",
+       "      <th>ps_calc_19_bin</th>\n",
+       "      <th>ps_calc_20_bin</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>5.952120e+05</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "      <td>595212.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>mean</th>\n",
+       "      <td>7.438036e+05</td>\n",
+       "      <td>0.036448</td>\n",
+       "      <td>1.900378</td>\n",
+       "      <td>1.358943</td>\n",
+       "      <td>4.423318</td>\n",
+       "      <td>0.416794</td>\n",
+       "      <td>0.405188</td>\n",
+       "      <td>0.393742</td>\n",
+       "      <td>0.257033</td>\n",
+       "      <td>0.163921</td>\n",
+       "      <td>...</td>\n",
+       "      <td>5.441382</td>\n",
+       "      <td>1.441918</td>\n",
+       "      <td>2.872288</td>\n",
+       "      <td>7.539026</td>\n",
+       "      <td>0.122427</td>\n",
+       "      <td>0.627840</td>\n",
+       "      <td>0.554182</td>\n",
+       "      <td>0.287182</td>\n",
+       "      <td>0.349024</td>\n",
+       "      <td>0.153318</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>std</th>\n",
+       "      <td>4.293678e+05</td>\n",
+       "      <td>0.187401</td>\n",
+       "      <td>1.983789</td>\n",
+       "      <td>0.664594</td>\n",
+       "      <td>2.699902</td>\n",
+       "      <td>0.493311</td>\n",
+       "      <td>1.350642</td>\n",
+       "      <td>0.488579</td>\n",
+       "      <td>0.436998</td>\n",
+       "      <td>0.370205</td>\n",
+       "      <td>...</td>\n",
+       "      <td>2.332871</td>\n",
+       "      <td>1.202963</td>\n",
+       "      <td>1.694887</td>\n",
+       "      <td>2.746652</td>\n",
+       "      <td>0.327779</td>\n",
+       "      <td>0.483381</td>\n",
+       "      <td>0.497056</td>\n",
+       "      <td>0.452447</td>\n",
+       "      <td>0.476662</td>\n",
+       "      <td>0.360295</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>min</th>\n",
+       "      <td>7.000000e+00</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>-1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>-1.000000</td>\n",
+       "      <td>-1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25%</th>\n",
+       "      <td>3.719915e+05</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>4.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>6.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50%</th>\n",
+       "      <td>7.435475e+05</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>4.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>5.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>3.000000</td>\n",
+       "      <td>7.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75%</th>\n",
+       "      <td>1.115549e+06</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>3.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>6.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>7.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>4.000000</td>\n",
+       "      <td>9.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>max</th>\n",
+       "      <td>1.488027e+06</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>7.000000</td>\n",
+       "      <td>4.000000</td>\n",
+       "      <td>11.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>6.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>19.000000</td>\n",
+       "      <td>10.000000</td>\n",
+       "      <td>13.000000</td>\n",
+       "      <td>23.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>8 rows × 59 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                 id         target      ps_ind_01  ps_ind_02_cat  \\\n",
+       "count  5.952120e+05  595212.000000  595212.000000  595212.000000   \n",
+       "mean   7.438036e+05       0.036448       1.900378       1.358943   \n",
+       "std    4.293678e+05       0.187401       1.983789       0.664594   \n",
+       "min    7.000000e+00       0.000000       0.000000      -1.000000   \n",
+       "25%    3.719915e+05       0.000000       0.000000       1.000000   \n",
+       "50%    7.435475e+05       0.000000       1.000000       1.000000   \n",
+       "75%    1.115549e+06       0.000000       3.000000       2.000000   \n",
+       "max    1.488027e+06       1.000000       7.000000       4.000000   \n",
+       "\n",
+       "           ps_ind_03  ps_ind_04_cat  ps_ind_05_cat  ps_ind_06_bin  \\\n",
+       "count  595212.000000  595212.000000  595212.000000  595212.000000   \n",
+       "mean        4.423318       0.416794       0.405188       0.393742   \n",
+       "std         2.699902       0.493311       1.350642       0.488579   \n",
+       "min         0.000000      -1.000000      -1.000000       0.000000   \n",
+       "25%         2.000000       0.000000       0.000000       0.000000   \n",
+       "50%         4.000000       0.000000       0.000000       0.000000   \n",
+       "75%         6.000000       1.000000       0.000000       1.000000   \n",
+       "max        11.000000       1.000000       6.000000       1.000000   \n",
+       "\n",
+       "       ps_ind_07_bin  ps_ind_08_bin  ...     ps_calc_11     ps_calc_12  \\\n",
+       "count  595212.000000  595212.000000  ...  595212.000000  595212.000000   \n",
+       "mean        0.257033       0.163921  ...       5.441382       1.441918   \n",
+       "std         0.436998       0.370205  ...       2.332871       1.202963   \n",
+       "min         0.000000       0.000000  ...       0.000000       0.000000   \n",
+       "25%         0.000000       0.000000  ...       4.000000       1.000000   \n",
+       "50%         0.000000       0.000000  ...       5.000000       1.000000   \n",
+       "75%         1.000000       0.000000  ...       7.000000       2.000000   \n",
+       "max         1.000000       1.000000  ...      19.000000      10.000000   \n",
+       "\n",
+       "          ps_calc_13     ps_calc_14  ps_calc_15_bin  ps_calc_16_bin  \\\n",
+       "count  595212.000000  595212.000000   595212.000000   595212.000000   \n",
+       "mean        2.872288       7.539026        0.122427        0.627840   \n",
+       "std         1.694887       2.746652        0.327779        0.483381   \n",
+       "min         0.000000       0.000000        0.000000        0.000000   \n",
+       "25%         2.000000       6.000000        0.000000        0.000000   \n",
+       "50%         3.000000       7.000000        0.000000        1.000000   \n",
+       "75%         4.000000       9.000000        0.000000        1.000000   \n",
+       "max        13.000000      23.000000        1.000000        1.000000   \n",
+       "\n",
+       "       ps_calc_17_bin  ps_calc_18_bin  ps_calc_19_bin  ps_calc_20_bin  \n",
+       "count   595212.000000   595212.000000   595212.000000   595212.000000  \n",
+       "mean         0.554182        0.287182        0.349024        0.153318  \n",
+       "std          0.497056        0.452447        0.476662        0.360295  \n",
+       "min          0.000000        0.000000        0.000000        0.000000  \n",
+       "25%          0.000000        0.000000        0.000000        0.000000  \n",
+       "50%          1.000000        0.000000        0.000000        0.000000  \n",
+       "75%          1.000000        1.000000        1.000000        0.000000  \n",
+       "max          1.000000        1.000000        1.000000        1.000000  \n",
+       "\n",
+       "[8 rows x 59 columns]"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data.describe()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "b9cc9960-e690-45bb-865d-b9908eafc836",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>id</th>\n",
+       "      <th>target</th>\n",
+       "      <th>ps_ind_01</th>\n",
+       "      <th>ps_ind_02_cat</th>\n",
+       "      <th>ps_ind_03</th>\n",
+       "      <th>ps_ind_04_cat</th>\n",
+       "      <th>ps_ind_05_cat</th>\n",
+       "      <th>ps_ind_06_bin</th>\n",
+       "      <th>ps_ind_07_bin</th>\n",
+       "      <th>ps_ind_08_bin</th>\n",
+       "      <th>...</th>\n",
+       "      <th>ps_calc_11</th>\n",
+       "      <th>ps_calc_12</th>\n",
+       "      <th>ps_calc_13</th>\n",
+       "      <th>ps_calc_14</th>\n",
+       "      <th>ps_calc_15_bin</th>\n",
+       "      <th>ps_calc_16_bin</th>\n",
+       "      <th>ps_calc_17_bin</th>\n",
+       "      <th>ps_calc_18_bin</th>\n",
+       "      <th>ps_calc_19_bin</th>\n",
+       "      <th>ps_calc_20_bin</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>7</td>\n",
+       "      <td>0</td>\n",
+       "      <td>2</td>\n",
+       "      <td>2</td>\n",
+       "      <td>5</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>9</td>\n",
+       "      <td>1</td>\n",
+       "      <td>5</td>\n",
+       "      <td>8</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>9</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>7</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>...</td>\n",
+       "      <td>3</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>9</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>13</td>\n",
+       "      <td>0</td>\n",
+       "      <td>5</td>\n",
+       "      <td>4</td>\n",
+       "      <td>9</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>...</td>\n",
+       "      <td>4</td>\n",
+       "      <td>2</td>\n",
+       "      <td>7</td>\n",
+       "      <td>7</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>3 rows × 59 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   id  target  ps_ind_01  ps_ind_02_cat  ps_ind_03  ps_ind_04_cat  \\\n",
+       "0   7       0          2              2          5              1   \n",
+       "1   9       0          1              1          7              0   \n",
+       "2  13       0          5              4          9              1   \n",
+       "\n",
+       "   ps_ind_05_cat  ps_ind_06_bin  ps_ind_07_bin  ps_ind_08_bin  ...  \\\n",
+       "0              0              0              1              0  ...   \n",
+       "1              0              0              0              1  ...   \n",
+       "2              0              0              0              1  ...   \n",
+       "\n",
+       "   ps_calc_11  ps_calc_12  ps_calc_13  ps_calc_14  ps_calc_15_bin  \\\n",
+       "0           9           1           5           8               0   \n",
+       "1           3           1           1           9               0   \n",
+       "2           4           2           7           7               0   \n",
+       "\n",
+       "   ps_calc_16_bin  ps_calc_17_bin  ps_calc_18_bin  ps_calc_19_bin  \\\n",
+       "0               1               1               0               0   \n",
+       "1               1               1               0               1   \n",
+       "2               1               1               0               1   \n",
+       "\n",
+       "   ps_calc_20_bin  \n",
+       "0               1  \n",
+       "1               0  \n",
+       "2               0  \n",
+       "\n",
+       "[3 rows x 59 columns]"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data.head(3)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "5781eede-7051-426a-aa6b-730609f9f47f",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>id</th>\n",
+       "      <th>target</th>\n",
+       "      <th>ps_ind_01</th>\n",
+       "      <th>ps_ind_02_cat</th>\n",
+       "      <th>ps_ind_03</th>\n",
+       "      <th>ps_ind_04_cat</th>\n",
+       "      <th>ps_ind_05_cat</th>\n",
+       "      <th>ps_ind_06_bin</th>\n",
+       "      <th>ps_ind_07_bin</th>\n",
+       "      <th>ps_ind_08_bin</th>\n",
+       "      <th>...</th>\n",
+       "      <th>ps_calc_11</th>\n",
+       "      <th>ps_calc_12</th>\n",
+       "      <th>ps_calc_13</th>\n",
+       "      <th>ps_calc_14</th>\n",
+       "      <th>ps_calc_15_bin</th>\n",
+       "      <th>ps_calc_16_bin</th>\n",
+       "      <th>ps_calc_17_bin</th>\n",
+       "      <th>ps_calc_18_bin</th>\n",
+       "      <th>ps_calc_19_bin</th>\n",
+       "      <th>ps_calc_20_bin</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>595209</th>\n",
+       "      <td>1488017</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>10</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>3</td>\n",
+       "      <td>2</td>\n",
+       "      <td>2</td>\n",
+       "      <td>6</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>595210</th>\n",
+       "      <td>1488021</td>\n",
+       "      <td>0</td>\n",
+       "      <td>5</td>\n",
+       "      <td>2</td>\n",
+       "      <td>3</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>...</td>\n",
+       "      <td>4</td>\n",
+       "      <td>1</td>\n",
+       "      <td>4</td>\n",
+       "      <td>2</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>595211</th>\n",
+       "      <td>1488027</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>8</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>4</td>\n",
+       "      <td>4</td>\n",
+       "      <td>3</td>\n",
+       "      <td>8</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>3 rows × 59 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "             id  target  ps_ind_01  ps_ind_02_cat  ps_ind_03  ps_ind_04_cat  \\\n",
+       "595209  1488017       0          1              1         10              0   \n",
+       "595210  1488021       0          5              2          3              1   \n",
+       "595211  1488027       0          0              1          8              0   \n",
+       "\n",
+       "        ps_ind_05_cat  ps_ind_06_bin  ps_ind_07_bin  ps_ind_08_bin  ...  \\\n",
+       "595209              0              1              0              0  ...   \n",
+       "595210              0              0              0              1  ...   \n",
+       "595211              0              1              0              0  ...   \n",
+       "\n",
+       "        ps_calc_11  ps_calc_12  ps_calc_13  ps_calc_14  ps_calc_15_bin  \\\n",
+       "595209           3           2           2           6               0   \n",
+       "595210           4           1           4           2               0   \n",
+       "595211           4           4           3           8               0   \n",
+       "\n",
+       "        ps_calc_16_bin  ps_calc_17_bin  ps_calc_18_bin  ps_calc_19_bin  \\\n",
+       "595209               0               1               0               0   \n",
+       "595210               1               1               1               0   \n",
+       "595211               1               0               0               0   \n",
+       "\n",
+       "        ps_calc_20_bin  \n",
+       "595209               0  \n",
+       "595210               0  \n",
+       "595211               0  \n",
+       "\n",
+       "[3 rows x 59 columns]"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data.tail(3)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "2179573e-6130-477e-8f20-2ee832ac75e8",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Index(['id', 'target', 'ps_ind_01', 'ps_ind_02_cat', 'ps_ind_03',\n",
+       "       'ps_ind_04_cat', 'ps_ind_05_cat', 'ps_ind_06_bin', 'ps_ind_07_bin',\n",
+       "       'ps_ind_08_bin', 'ps_ind_09_bin', 'ps_ind_10_bin', 'ps_ind_11_bin',\n",
+       "       'ps_ind_12_bin', 'ps_ind_13_bin', 'ps_ind_14', 'ps_ind_15',\n",
+       "       'ps_ind_16_bin', 'ps_ind_17_bin', 'ps_ind_18_bin', 'ps_reg_01',\n",
+       "       'ps_reg_02', 'ps_reg_03', 'ps_car_01_cat', 'ps_car_02_cat',\n",
+       "       'ps_car_03_cat', 'ps_car_04_cat', 'ps_car_05_cat', 'ps_car_06_cat',\n",
+       "       'ps_car_07_cat', 'ps_car_08_cat', 'ps_car_09_cat', 'ps_car_10_cat',\n",
+       "       'ps_car_11_cat', 'ps_car_11', 'ps_car_12', 'ps_car_13', 'ps_car_14',\n",
+       "       'ps_car_15', 'ps_calc_01', 'ps_calc_02', 'ps_calc_03', 'ps_calc_04',\n",
+       "       'ps_calc_05', 'ps_calc_06', 'ps_calc_07', 'ps_calc_08', 'ps_calc_09',\n",
+       "       'ps_calc_10', 'ps_calc_11', 'ps_calc_12', 'ps_calc_13', 'ps_calc_14',\n",
+       "       'ps_calc_15_bin', 'ps_calc_16_bin', 'ps_calc_17_bin', 'ps_calc_18_bin',\n",
+       "       'ps_calc_19_bin', 'ps_calc_20_bin'],\n",
+       "      dtype='object')"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data.columns"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ec146a33-3468-4bc0-9100-a55dc7cdef85",
+   "metadata": {},
+   "source": [
+    "### Data preprocessing"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "95c32447-76ef-402b-9ae8-65bb5c8042c5",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "id                0\n",
+       "target            0\n",
+       "ps_ind_01         0\n",
+       "ps_ind_02_cat     0\n",
+       "ps_ind_03         0\n",
+       "ps_ind_04_cat     0\n",
+       "ps_ind_05_cat     0\n",
+       "ps_ind_06_bin     0\n",
+       "ps_ind_07_bin     0\n",
+       "ps_ind_08_bin     0\n",
+       "ps_ind_09_bin     0\n",
+       "ps_ind_10_bin     0\n",
+       "ps_ind_11_bin     0\n",
+       "ps_ind_12_bin     0\n",
+       "ps_ind_13_bin     0\n",
+       "ps_ind_14         0\n",
+       "ps_ind_15         0\n",
+       "ps_ind_16_bin     0\n",
+       "ps_ind_17_bin     0\n",
+       "ps_ind_18_bin     0\n",
+       "ps_reg_01         0\n",
+       "ps_reg_02         0\n",
+       "ps_reg_03         0\n",
+       "ps_car_01_cat     0\n",
+       "ps_car_02_cat     0\n",
+       "ps_car_03_cat     0\n",
+       "ps_car_04_cat     0\n",
+       "ps_car_05_cat     0\n",
+       "ps_car_06_cat     0\n",
+       "ps_car_07_cat     0\n",
+       "ps_car_08_cat     0\n",
+       "ps_car_09_cat     0\n",
+       "ps_car_10_cat     0\n",
+       "ps_car_11_cat     0\n",
+       "ps_car_11         0\n",
+       "ps_car_12         0\n",
+       "ps_car_13         0\n",
+       "ps_car_14         0\n",
+       "ps_car_15         0\n",
+       "ps_calc_01        0\n",
+       "ps_calc_02        0\n",
+       "ps_calc_03        0\n",
+       "ps_calc_04        0\n",
+       "ps_calc_05        0\n",
+       "ps_calc_06        0\n",
+       "ps_calc_07        0\n",
+       "ps_calc_08        0\n",
+       "ps_calc_09        0\n",
+       "ps_calc_10        0\n",
+       "ps_calc_11        0\n",
+       "ps_calc_12        0\n",
+       "ps_calc_13        0\n",
+       "ps_calc_14        0\n",
+       "ps_calc_15_bin    0\n",
+       "ps_calc_16_bin    0\n",
+       "ps_calc_17_bin    0\n",
+       "ps_calc_18_bin    0\n",
+       "ps_calc_19_bin    0\n",
+       "ps_calc_20_bin    0\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "## Handling Null values\n",
+    "\n",
+    "data.isnull().sum()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "767cc49a-0e8c-487e-8f5d-39578fc27c41",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data.duplicated().sum()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "d8068506-02db-4d67-9d33-12ac52d131c8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## Encoding\n",
+    "\n",
+    "from sklearn.preprocessing import LabelEncoder\n",
+    "\n",
+    "encoder = LabelEncoder()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "12524cfd-5e43-4ccf-9d0a-0e4d8034c0ce",
+   "metadata": {},
+   "source": [
+    "### Data Splitting\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "b4107a80-f45b-4133-a245-b30cde2cd7f9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## x,y split\n",
+    "\n",
+    "x = data.drop('target',axis=1)\n",
+    "y = data.target"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "0ebca079-71aa-4eae-aa0c-c67fbe2b6dd1",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "target\n",
+       "0    573518\n",
+       "1     21694\n",
+       "Name: count, dtype: int64"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y.value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "291e1353-4c32-410f-b849-97d83219d33b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## train, test splitting\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "\n",
+    "x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.2,random_state=19)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "458d908d-ff08-45cc-93e4-57e0370c127a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(476169, 58)\n",
+      "(119043, 58)\n",
+      "(476169,)\n",
+      "(119043,)\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(x_train.shape)\n",
+    "print(x_test.shape)\n",
+    "print(y_train.shape)\n",
+    "print(y_test.shape)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "cec65aca-8c41-4068-9af4-fdac5c93336d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## SMOTE\n",
+    "\n",
+    "from imblearn.over_sampling import SMOTE\n",
+    "\n",
+    "smote = SMOTE()\n",
+    "x_train_sm,y_train_sm = smote.fit_resample(x_train,y_train)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c0f8ec5b-2942-40cd-aa6d-9a065a3660bf",
+   "metadata": {},
+   "source": [
+    "### Model Implementation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "1a10712b-7e1e-4038-aaa2-b5f4ad53ee30",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>#sk-container-id-1 {color: black;background-color: white;}#sk-container-id-1 pre{padding: 0;}#sk-container-id-1 div.sk-toggleable {background-color: white;}#sk-container-id-1 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-1 label.sk-toggleable__label-arrow:before {content: \"▸\";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-1 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-1 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-1 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-1 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-1 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-1 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: \"▾\";}#sk-container-id-1 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-1 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-1 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-1 div.sk-parallel-item::after {content: \"\";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-1 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-serial::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-1 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-1 div.sk-item {position: relative;z-index: 1;}#sk-container-id-1 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-1 div.sk-item::before, #sk-container-id-1 div.sk-parallel-item::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-1 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-1 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-1 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-1 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-1 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-1 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-1 div.sk-label-container {text-align: center;}#sk-container-id-1 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-1 div.sk-text-repr-fallback {display: none;}</style><div id=\"sk-container-id-1\" class=\"sk-top-container\"><div class=\"sk-text-repr-fallback\"><pre>DecisionTreeClassifier()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class=\"sk-container\" hidden><div class=\"sk-item\"><div class=\"sk-estimator sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-1\" type=\"checkbox\" checked><label for=\"sk-estimator-id-1\" class=\"sk-toggleable__label sk-toggleable__label-arrow\">DecisionTreeClassifier</label><div class=\"sk-toggleable__content\"><pre>DecisionTreeClassifier()</pre></div></div></div></div></div>"
+      ],
+      "text/plain": [
+       "DecisionTreeClassifier()"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from sklearn.tree import DecisionTreeClassifier\n",
+    "\n",
+    "model_dt = DecisionTreeClassifier()\n",
+    "\n",
+    "model_dt.fit(x_train_sm,y_train_sm) "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "7eb31617-d7a3-4be0-8076-ba67325f55a3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred = model_dt.predict(x_test)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4fa1abd2-04bb-470b-921b-986683d43d9b",
+   "metadata": {},
+   "source": [
+    "### Model Evaluation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "6dfe2392-ebbd-472a-a7ee-514e28a3f114",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from sklearn.metrics import accuracy_score,confusion_matrix,classification_report"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "634a3daa-f7f1-4db9-9256-d342439c47d0",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.9099569063279656"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "accuracy_score(y_test,y_pred)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "b7a86d90-00a4-41ea-bac8-7b3591900950",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[107997,   6754],\n",
+       "       [  3965,    327]], dtype=int64)"
+      ]
+     },
+     "execution_count": 21,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "confusion_matrix(y_test,y_pred)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8f31e03d-9659-408a-8c26-ea9042530b2c",
+   "metadata": {},
+   "source": [
+    "#### Random Forest Classifier"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "id": "8b43a289-119a-4664-a46a-a1f24c23ef76",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>#sk-container-id-3 {color: black;background-color: white;}#sk-container-id-3 pre{padding: 0;}#sk-container-id-3 div.sk-toggleable {background-color: white;}#sk-container-id-3 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-3 label.sk-toggleable__label-arrow:before {content: \"▸\";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-3 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-3 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-3 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-3 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-3 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-3 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: \"▾\";}#sk-container-id-3 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-3 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-3 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-3 div.sk-parallel-item::after {content: \"\";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-3 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 div.sk-serial::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-3 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-3 div.sk-item {position: relative;z-index: 1;}#sk-container-id-3 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-3 div.sk-item::before, #sk-container-id-3 div.sk-parallel-item::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-3 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-3 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-3 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-3 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-3 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-3 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-3 div.sk-label-container {text-align: center;}#sk-container-id-3 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-3 div.sk-text-repr-fallback {display: none;}</style><div id=\"sk-container-id-3\" class=\"sk-top-container\"><div class=\"sk-text-repr-fallback\"><pre>RandomForestClassifier()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class=\"sk-container\" hidden><div class=\"sk-item\"><div class=\"sk-estimator sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-3\" type=\"checkbox\" checked><label for=\"sk-estimator-id-3\" class=\"sk-toggleable__label sk-toggleable__label-arrow\">RandomForestClassifier</label><div class=\"sk-toggleable__content\"><pre>RandomForestClassifier()</pre></div></div></div></div></div>"
+      ],
+      "text/plain": [
+       "RandomForestClassifier()"
+      ]
+     },
+     "execution_count": 23,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from sklearn.ensemble import RandomForestClassifier\n",
+    "\n",
+    "model_rf = RandomForestClassifier()\n",
+    "\n",
+    "model_rf.fit(x_train_sm,y_train_sm)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "id": "a975ea7c-4d23-4877-a91b-679310a93471",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_rf = model_rf.predict(x_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "id": "798f2fb9-d0f1-4d44-b617-45a955040397",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.9632989760002688"
+      ]
+     },
+     "execution_count": 25,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "accuracy_score(y_test,y_pred_rf) "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "id": "4ff3e512-460e-468f-9a9c-10a8a0a746dc",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "              precision    recall  f1-score   support\n",
+      "\n",
+      "           0       0.96      1.00      0.98    114751\n",
+      "           1       0.02      0.00      0.00      4292\n",
+      "\n",
+      "    accuracy                           0.96    119043\n",
+      "   macro avg       0.49      0.50      0.49    119043\n",
+      "weighted avg       0.93      0.96      0.95    119043\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(classification_report(y_test,y_pred_rf))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b4b8d5c6-64a9-495a-ad91-001538046775",
+   "metadata": {},
+   "source": [
+    "### Linear Regression"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "id": "4928a15b-f644-4129-b7e4-b4f866cf97f6",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>#sk-container-id-4 {color: black;background-color: white;}#sk-container-id-4 pre{padding: 0;}#sk-container-id-4 div.sk-toggleable {background-color: white;}#sk-container-id-4 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-4 label.sk-toggleable__label-arrow:before {content: \"▸\";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-4 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-4 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-4 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-4 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-4 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-4 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: \"▾\";}#sk-container-id-4 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-4 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-4 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-4 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-4 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-4 div.sk-parallel-item::after {content: \"\";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-4 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-4 div.sk-serial::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-4 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-4 div.sk-item {position: relative;z-index: 1;}#sk-container-id-4 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-4 div.sk-item::before, #sk-container-id-4 div.sk-parallel-item::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-4 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-4 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-4 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-4 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-4 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-4 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-4 div.sk-label-container {text-align: center;}#sk-container-id-4 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-4 div.sk-text-repr-fallback {display: none;}</style><div id=\"sk-container-id-4\" class=\"sk-top-container\"><div class=\"sk-text-repr-fallback\"><pre>LinearRegression()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class=\"sk-container\" hidden><div class=\"sk-item\"><div class=\"sk-estimator sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-4\" type=\"checkbox\" checked><label for=\"sk-estimator-id-4\" class=\"sk-toggleable__label sk-toggleable__label-arrow\">LinearRegression</label><div class=\"sk-toggleable__content\"><pre>LinearRegression()</pre></div></div></div></div></div>"
+      ],
+      "text/plain": [
+       "LinearRegression()"
+      ]
+     },
+     "execution_count": 27,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from sklearn.linear_model import LinearRegression\n",
+    "\n",
+    "model = LinearRegression()\n",
+    "\n",
+    "model.fit(x_train,y_train) # model training"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "id": "ccacbc52-212b-4924-b951-4016e14e6325",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_hat= model.predict(x_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "id": "a6c5f97f-30e5-4400-8dfd-2b79644dc1d2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from sklearn.metrics import r2_score,mean_absolute_error,mean_squared_error"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "id": "193047d7-b042-416e-ad08-cd64b3f5afab",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.006915646189757707"
+      ]
+     },
+     "execution_count": 30,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "r2_score(y_test,y_hat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "id": "38955425-3e59-4eae-9702-8c597a3414bd",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.03451394524596679"
+      ]
+     },
+     "execution_count": 31,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "mse=mean_squared_error(y_test,y_hat)\n",
+    "mse"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "id": "2725916c-a324-42b5-bf18-9ef5c764041e",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.1857792917576305"
+      ]
+     },
+     "execution_count": 32,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "## root mean squared error\n",
+    "\n",
+    "np.sqrt(mse)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "id": "257914f5-3e68-4866-bd9b-0538d76342e9",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.0694753597710451"
+      ]
+     },
+     "execution_count": 33,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "mean_absolute_error(y_test,y_hat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "id": "55144617-7e09-40b3-9fec-43f2aa3c8516",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## Adjusted r2-score\n",
+    "\n",
+    "adjusted_r2=1-(1-0.92)*(40-1)/(40-3-1)\n",
+    "\n",
+    "# 1-(1-r2score)*(no.of rows in x_test-1)/(no.of rows in x_test-no. of columns in x_test-1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "id": "a18e86ce-9f53-4c0f-9204-6d05a6971be4",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.9133333333333333"
+      ]
+     },
+     "execution_count": 35,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "adjusted_r2"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "72781465-2ac0-40c1-bf97-b3166575b4ba",
+   "metadata": {},
+   "source": [
+    "#### Logistics Regression"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "id": "e3ce886b-a1b8-4e83-8f07-318c6ea8ecc4",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>#sk-container-id-5 {color: black;background-color: white;}#sk-container-id-5 pre{padding: 0;}#sk-container-id-5 div.sk-toggleable {background-color: white;}#sk-container-id-5 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-5 label.sk-toggleable__label-arrow:before {content: \"▸\";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-5 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-5 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-5 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-5 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-5 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-5 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: \"▾\";}#sk-container-id-5 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-5 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-5 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-5 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-5 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-5 div.sk-parallel-item::after {content: \"\";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-5 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-5 div.sk-serial::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-5 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-5 div.sk-item {position: relative;z-index: 1;}#sk-container-id-5 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-5 div.sk-item::before, #sk-container-id-5 div.sk-parallel-item::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-5 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-5 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-5 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-5 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-5 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-5 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-5 div.sk-label-container {text-align: center;}#sk-container-id-5 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-5 div.sk-text-repr-fallback {display: none;}</style><div id=\"sk-container-id-5\" class=\"sk-top-container\"><div class=\"sk-text-repr-fallback\"><pre>LogisticRegression()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class=\"sk-container\" hidden><div class=\"sk-item\"><div class=\"sk-estimator sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-5\" type=\"checkbox\" checked><label for=\"sk-estimator-id-5\" class=\"sk-toggleable__label sk-toggleable__label-arrow\">LogisticRegression</label><div class=\"sk-toggleable__content\"><pre>LogisticRegression()</pre></div></div></div></div></div>"
+      ],
+      "text/plain": [
+       "LogisticRegression()"
+      ]
+     },
+     "execution_count": 36,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from sklearn.linear_model import LogisticRegression\n",
+    "\n",
+    "model = LogisticRegression()\n",
+    "\n",
+    "model.fit(x_train,y_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "id": "02cb9e2d-1153-4e78-bad5-97c7a3714b2a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred = model.predict(x_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "id": "e91a1d83-376c-468c-bf35-096486c91451",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_score\n",
+    "from sklearn.metrics import recall_score, f1_score"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "id": "20f87dfe-5984-4486-bf7f-92cbbe110929",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.9639458010970826"
+      ]
+     },
+     "execution_count": 39,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "accuracy_score(y_test,y_pred)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "id": "da05e960-637b-4aab-b316-d128b2c7244b",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[114751,      0],\n",
+       "       [  4292,      0]], dtype=int64)"
+      ]
+     },
+     "execution_count": 40,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "confusion_matrix(y_test,y_pred)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "f011334e-2578-4445-8302-bcc8df8e9399",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "              precision    recall  f1-score   support\n",
+      "\n",
+      "           0       0.96      1.00      0.98    114751\n",
+      "           1       0.00      0.00      0.00      4292\n",
+      "\n",
+      "    accuracy                           0.96    119043\n",
+      "   macro avg       0.48      0.50      0.49    119043\n",
+      "weighted avg       0.93      0.96      0.95    119043\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(classification_report(y_test,y_pred))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "id": "19976329-7d9c-47ec-a5cc-05819dc68ca4",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.0"
+      ]
+     },
+     "execution_count": 42,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "precision_score(y_test,y_pred)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "id": "d5533810-eccb-48d5-805f-1452e421269d",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.0"
+      ]
+     },
+     "execution_count": 43,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "recall_score(y_test,y_pred)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "id": "3c85c531-47ac-45c3-af73-d6c714612bc8",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.0"
+      ]
+     },
+     "execution_count": 44,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "f1_score(y_test,y_pred)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "27886dfb-a857-4f4b-adbd-cc8b96c803ba",
+   "metadata": {},
+   "source": [
+    "### Hyperparameter Tunning"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "61c2369f-9002-4f24-bac4-e42c6bee086a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from sklearn.model_selection import GridSearchCV\n",
+    "\n",
+    "params = {\n",
+    "    \"criterion\":(\"gini\", \"entropy\"), \n",
+    "    \"max_depth\":(list(range(1, 20))), \n",
+    "    \"min_samples_split\":list(range(1, 20)),    \n",
+    "    \"min_samples_leaf\":[2,3,4],\n",
+    "} \n",
+    "\n",
+    "\n",
+    "tree_clf = DecisionTreeClassifier(random_state=3) \n",
+    "tree_cv = GridSearchCV(tree_clf, params, scoring=\"f1\", n_jobs=-1, verbose=1, cv=3)\n",
+    "\n",
+    "\n",
+    "tree_cv.fit(x_train_sm,y_train_sm) \n",
+    "best_params = tree_cv.best_params_ \n",
+    "print(f\"Best paramters: {best_params}\") "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cb036e90-6de4-4e31-8f91-cea5e13b0579",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "model_dt_1 = DecisionTreeClassifier(criterion = 'entropy', max_depth = 12, min_samples_leaf = 3, min_samples_split = 8)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7992b146-b6e3-46dd-98c9-19b94c8c35d9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "model_dt_1.fit(x_train_sm,y_train_sm)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "81e07b88-73f2-46c8-963d-f47541c03a00",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred_1 = model_dt_1.predict(x_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "61a5197f-0451-482c-b751-9c6af12eea66",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "accuracy_score(y_test,y_pred_1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9441391f-7ab1-47d1-bc3e-2087e0da0e44",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "confusion_matrix(y_test,y_pred_1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0b1ad039-02b0-4613-ab6d-c21a8199da83",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(classification_report(y_test,y_pred_1))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0c42037a-b332-45b5-805b-160d953e4d52",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f9dc00b6-b286-4c88-b8aa-ef2dda44fc21",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
